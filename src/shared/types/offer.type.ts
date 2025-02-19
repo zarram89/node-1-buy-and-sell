@@ -12,3 +12,4 @@ export type Offer = {
   categories: Category[];
   user: User;
 }
+
