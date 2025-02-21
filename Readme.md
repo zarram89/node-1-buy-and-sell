@@ -437,3 +437,26 @@ console.log(buffer.toString(), 1, 3);
 'I'.charCodeAt(0); // 73
 ```
 
+#### Потоки 
+
+Stream — это абстракция для работы с потоковыми данными в Node.js. Потоки неразрывно связаны с буфером (вспомните примеры, рассмотренные выше). Технически все потоки являются экземплярами EventEmitter.
+
+#### Pipe
+
+Pipes - каналы позволяют связать потоки чтения и записи. Таким образом, можно сразу данные из потока чтения направить в поток записи. За счёт этого и получится упростить код. Для применения каналов у объектов потоков есть одноимённый метод pipe.
+
+```js
+import fs from 'fs';
+
+const sourcePath = process.argv[2];
+const destPath = process.argv[3];
+
+const copyFile = () => {
+  const sourceFile = fs.createReadStream(sourcePath);
+  const destFile = fs.createWriteStream(destPath);
+  destFile.on('finish', () => console.log('Файл скопирован…'));
+  sourceFile.pipe(destFile);
+};
+
+copyFile();
+```
