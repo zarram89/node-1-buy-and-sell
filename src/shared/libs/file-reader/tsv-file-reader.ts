@@ -1,9 +1,10 @@
 import { FileReader } from './file-reader.interface.js';
 import { Offer, OfferType, User } from '../../types/index.js';
 import { EventEmitter } from 'node:stream';
+import { createReadStream } from 'node:fs';
 
 export class TSVFileReader extends EventEmitter implements FileReader {
-  private rawData = '';
+  private CHUNK_SIZE = 16384;
 
   constructor(
     private readonly filename: string
@@ -63,12 +64,29 @@ export class TSVFileReader extends EventEmitter implements FileReader {
     return { email, firstname, lastname, avatarPath };
   }
 
-  public read(): void {
-    // Код для работы с потоками
-  }
+  public async read(): Promise<void> {
+    const readStream = createReadStream(this.filename, {
+      highWaterMark: this.CHUNK_SIZE,
+      encoding: 'utf-8',
+    });
 
-  public toArray(): Offer[] {
-    this.validateRawData();
-    return this.parseRawDataToOffers();
+    let remainingData = '';
+    let nextLinePosition = -1;
+    let importedRowCount = 0;
+
+    for await (const chunk of readStream) {
+      remainingData += chunk.toString();
+
+      while ((nextLinePosition = remainingData.indexOf('\n')) >= 0) {
+        const completeRow = remainingData.slice(0, nextLinePosition + 1);
+        remainingData = remainingData.slice(++nextLinePosition);
+        importedRowCount++;
+
+        const parsedOffer = this.parseLineToOffer(completeRow);
+        this.emit('line', parsedOffer);
+      }
+    }
+
+    this.emit('end', importedRowCount);
   }
 }
