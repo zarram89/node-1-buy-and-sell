@@ -12,19 +12,6 @@ export class TSVFileReader extends EventEmitter implements FileReader {
     super();
   }
 
-  private validateRawData(): void {
-    if (! this.rawData) {
-      throw new Error('File was not read');
-    }
-  }
-
-  private parseRawDataToOffers(): Offer[] {
-    return this.rawData
-      .split('\n')
-      .filter((row) => row.trim().length > 0)
-      .map((line) => this.parseLineToOffer(line));
-  }
-
   private parseLineToOffer(line: string): Offer {
     const [
       title,
