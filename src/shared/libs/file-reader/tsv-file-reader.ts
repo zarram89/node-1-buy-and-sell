@@ -7,7 +7,9 @@ export class TSVFileReader extends EventEmitter implements FileReader {
 
   constructor(
     private readonly filename: string
-  ) {}
+  ) {
+    super();
+  }
 
   private validateRawData(): void {
     if (! this.rawData) {
@@ -62,7 +64,7 @@ export class TSVFileReader extends EventEmitter implements FileReader {
   }
 
   public read(): void {
-    // Рефакторим метод импорта из файла
+    // Код для работы с потоками
   }
 
   public toArray(): Offer[] {
